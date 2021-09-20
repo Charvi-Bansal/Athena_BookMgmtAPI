@@ -274,4 +274,71 @@ athena.put("/book/author/update/:isbn", (req, res) => {
   });
 });
 
+
+/* 
+Route          /author/update
+Description    update author name using id
+Access         PUBLIC
+Parameters     id
+Method         PUT
+*/
+athena.put("/author/update/:id", (req,res) => {
+  database.authors.forEach((author) => {
+    if(author.id == req.params.id)
+    author.name = req.body.authorName;
+    return;
+  })
+
+  return res.json({authors: database.authors, message: "author name updated!"});
+
+})
+
+
+/* 
+Route          /pub/update
+Description    update publication name using id
+Access         PUBLIC
+Parameters     id
+Method         PUT
+*/
+athena.put("/pub/update/:id", (req,res) => {
+  database.publications.forEach((publication) => {
+    if(publication.id == req.params.id)
+    publication.name = req.body.pubName;
+    return;
+  })
+
+  return res.json({publications: database.publications, message: "publication name updated!"});
+
+})
+
+
+/* 
+Route          /pub/update/book
+Description    update/add new book to publication
+Access         PUBLIC
+Parameters     isbn
+Method         PUT
+*/
+athena.put("/pub/update/book/:isbn", (req,res) => {
+  //update publication database
+  database.publications.forEach((publication) => {
+    if(publication.id === req.body.pubId)
+    return publication.books.push(req.params.isbn);
+  })
+
+  //update book database
+  database.books.forEach((book) => {
+    if(book.ISBN === req.params.isbn)
+    book.publication = req.body.pubId;
+    return;
+  })
+
+  return res.json({
+    books: database.books,
+    publications: database.publications,   
+    message: "Publication updated!",
+  });
+})
+
 athena.listen(3000, () => console.log("Server running!"));

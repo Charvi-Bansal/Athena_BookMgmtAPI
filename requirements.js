@@ -53,7 +53,7 @@
 // add new author [done]
 
 //PUT
-// update author name using id [task]
+// update author name using id [done]
 
 
 //DELETE
@@ -75,8 +75,8 @@
 // Add new publication [done]
 
 //PUT
-// update publication name using id [task]
-// update/add new book to a publication
+// update publication name using id [done]
+// update/add new book to a publication [done]
 
 //DELETE
 // delete a book from publication
