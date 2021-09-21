@@ -34,8 +34,8 @@
 // update/add new author [done]
 
 //DELETE
-// delete a book
-// delete an author from the book
+// delete a book [done]
+// delete an author from the book [done]
 
 
 // -------------------------------------------------------------------------------------------

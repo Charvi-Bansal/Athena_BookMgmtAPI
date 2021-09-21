@@ -274,7 +274,6 @@ athena.put("/book/author/update/:isbn", (req, res) => {
   });
 });
 
-
 /* 
 Route          /author/update
 Description    update author name using id
@@ -282,17 +281,17 @@ Access         PUBLIC
 Parameters     id
 Method         PUT
 */
-athena.put("/author/update/:id", (req,res) => {
+athena.put("/author/update/:id", (req, res) => {
   database.authors.forEach((author) => {
-    if(author.id == req.params.id)
-    author.name = req.body.authorName;
+    if (author.id == req.params.id) author.name = req.body.authorName;
     return;
-  })
+  });
 
-  return res.json({authors: database.authors, message: "author name updated!"});
-
-})
-
+  return res.json({
+    authors: database.authors,
+    message: "author name updated!",
+  });
+});
 
 /* 
 Route          /pub/update
@@ -301,17 +300,17 @@ Access         PUBLIC
 Parameters     id
 Method         PUT
 */
-athena.put("/pub/update/:id", (req,res) => {
+athena.put("/pub/update/:id", (req, res) => {
   database.publications.forEach((publication) => {
-    if(publication.id == req.params.id)
-    publication.name = req.body.pubName;
+    if (publication.id == req.params.id) publication.name = req.body.pubName;
     return;
-  })
+  });
 
-  return res.json({publications: database.publications, message: "publication name updated!"});
-
-})
-
+  return res.json({
+    publications: database.publications,
+    message: "publication name updated!",
+  });
+});
 
 /* 
 Route          /pub/update/book
@@ -320,25 +319,156 @@ Access         PUBLIC
 Parameters     isbn
 Method         PUT
 */
-athena.put("/pub/update/book/:isbn", (req,res) => {
+athena.put("/pub/update/book/:isbn", (req, res) => {
   //update publication database
   database.publications.forEach((publication) => {
-    if(publication.id === req.body.pubId)
-    return publication.books.push(req.params.isbn);
-  })
+    if (publication.id === req.body.pubId)
+      return publication.books.push(req.params.isbn);
+  });
 
   //update book database
   database.books.forEach((book) => {
-    if(book.ISBN === req.params.isbn)
-    book.publication = req.body.pubId;
+    if (book.ISBN === req.params.isbn) book.publication = req.body.pubId;
     return;
-  })
+  });
 
   return res.json({
     books: database.books,
-    publications: database.publications,   
+    publications: database.publications,
     message: "Publication updated!",
   });
-})
+});
+
+/* 
+Route          /book/delete
+Description    delete a book
+Access         PUBLIC
+Parameters     isbn
+Method         DELETE
+*/
+athena.delete("/book/delete/:isbn", (req, res) => {
+  const updatedBookDatabase = database.books.filter(
+    (book) => book.ISBN !== req.params.isbn
+  );
+
+  database.books = updatedBookDatabase;
+  return res.json({
+    books: database.books,
+    message: "Book deleted successfully!",
+  });
+});
+
+/* 
+Route          /book/delete/author
+Description    delete an author from the book
+Access         PUBLIC
+Parameters     isbn, author id
+Method         DELETE
+*/
+athena.delete("/book/delete/author/:isbn/:authorId", (req, res) => {
+  //update the book database
+  database.books.forEach((book) => {
+    if (book.ISBN === req.params.isbn) {
+      const newAuthorList = book.authors.filter(
+        (author) => author !== parseInt(req.params.authorId)
+      );
+      book.authors = newAuthorList;
+      return;
+    }
+  });
+
+  //update the author database
+  database.authors.forEach((author) => {
+    if (author.id === parseInt(req.params.authorId)) {
+      const newBooksList = author.books.filter(
+        (book) => book !== req.params.isbn
+      );
+      author.books = newBooksList;
+      return;
+    }
+  });
+
+  return res.json({
+    book: database.books,
+    author: database.authors,
+    message: "Author deleted successfully from the book!",
+  });
+});
+
+/* 
+Route          /author/delete
+Description    delete an author
+Access         PUBLIC
+Parameters     id
+Method         DELETE
+*/
+athena.delete("/author/delete/:id", (req, res) => {
+  const updatedAuthorsList = database.authors.filter((author) => {
+    author.id !== parseInt(req.params.id);
+    return;
+  });
+
+  database.authors = updatedAuthorsList;
+  return res.json({
+    authors: database.authors,
+    message: "Given author was successfully deleted!",
+  });
+});
+
+/* 
+Route          /publication/delete
+Description    delete a publication
+Access         PUBLIC
+Parameters     id
+Method         DELETE
+*/
+athena.delete("/publication/delete/:id", (req, res) => {
+  const updatedPublicationsList = database.publications.filter(
+    (publication) => {
+      publication.id !== parseInt(req.params.id);
+      return;
+    }
+  );
+
+  database.publications = updatedPublicationsList;
+  return res.json({
+    publications: database.publications,
+    message: "Given publication was successfully deleted!",
+  });
+});
+
+/* 
+Route          /publication/delete/book
+Description    delete a book from publication
+Access         PUBLIC
+Parameters     isbn, publication id
+Method         DELETE
+*/
+athena.delete("/publication/delete/book/:isbn/:pubId", (req, res) => {
+  // update publication database
+  database.publications.forEach((publication) => {
+    if (publication.id === parseInt(req.params.pubId)) {
+      const newBooksList = publication.books.filter(
+        (book) => book !== req.params.isbn
+      );
+      publication.books = newBooksList;
+      return;
+    }
+  });
+
+  //update books database
+  database.books.forEach((book) => {
+    if (book.ISBN === req.params.isbn) {
+      book.publication = 0; // 0 means that book doenst have any publication
+      return;
+    }
+  });
+
+  return res.json({
+    books: database.books,
+    publications: database.publications,
+    message: "Book deleted from publication!",
+  });
+});
 
 athena.listen(3000, () => console.log("Server running!"));
